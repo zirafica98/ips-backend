@@ -2,9 +2,13 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const BASE_URL = process.env.ALTA_BASE_URL || 'https://91.239.151.43:9092';
+const BASE_URL = process.env.ALTA_BASE_URL;
 const USER_ID = process.env.ALTA_USER_ID;
 const TID = process.env.ALTA_TID;
+
+const SUCCESS_URL = process.env.SUCCESS_URL;
+const FAIL_URL = process.env.FAIL_URL;
+const CANCEL_URL = process.env.CANCEL_URL;
 
 let sessionToken = null;
 let tokenExpiry = null;
@@ -35,63 +39,43 @@ const ensureToken = async () => {
   return sessionToken;
 };
 
-// // 🔹 Create Payment (Authorization Request)
-// export const createPayment = async (orderId, amount) => {
-//   try {
-//     const token = await ensureToken();
-
-//     const payload = {
-//       tid: TID,
-//       amount: amount.toFixed(2),
-//       orderId,
-//       successSiteURL: 'https://tvoj-sajt.rs/payment/success',
-//       failSiteURL: 'https://tvoj-sajt.rs/payment/fail',
-//       cancelSiteURL: 'https://tvoj-sajt.rs/payment/cancel'
-//     };
-
-//     const headers = {
-//       'Content-Type': 'application/json',
-//       'Authorization': `Bearer ${token}`,
-//       'Terminal-Identification': TID
-//     };
-
-//     const response = await axios.post(`${BASE_URL}/ips/v2/eCommerce`, payload, { headers });
-//     return response.data; // vrati qrCodeURL
-//   } catch (err) {
-//     console.error('❌ Error creating payment:', err.response?.data || err.message);
-//     throw err;
-//   }
-// };
-
-// // 🔹 Check Payment Status
-// export const checkPaymentStatus = async (orderId, amount) => {
-//   try {
-//     const token = await ensureToken();
-
-//     const payload = { tid: TID, amount: amount.toFixed(2), orderId };
-//     const headers = {
-//       'Content-Type': 'application/json',
-//       'Authorization': `Bearer ${token}`,
-//       'Terminal-Identification': TID
-//     };
-
-//     const response = await axios.post(`${BASE_URL}/ips/v2/checkStatus`, payload, { headers });
-//     return response.data;
-//   } catch (err) {
-//     console.error('❌ Error checking payment status:', err.response?.data || err.message);
-//     throw err;
-//   }
-
+// 🔹 Create Payment (Production-ready, ali ne šalje stvarno)
 export const createPayment = async (orderId, amount) => {
-  // samo generišemo link do javnog QR generatora
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=ORDER:${orderId}|AMOUNT:${amount}RSD|IPS-TEST`;
+  try {
+    const token = await ensureToken();
 
-  console.log('✅ Fake payment created for', orderId, 'amount', amount);
-  return { qrCodeURL: qrUrl };
+    const payload = {
+      tid: TID,
+      amount: Number(amount).toFixed(2),
+      orderId,
+      successSiteURL: SUCCESS_URL,
+      failSiteURL: FAIL_URL,
+      cancelSiteURL: CANCEL_URL
+    };
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'Terminal-Identification': TID
+    };
+
+    console.log('📦 IPS Payment Request (prepared, not sent):');
+    console.log(JSON.stringify(payload, null, 2));
+
+    // ❗ za sada nećemo zvati pravi servis, samo vraćamo fake QR
+    // const response = await axios.post(`${BASE_URL}/ips/v2/eCommerce`, payload, { headers });
+    // return response.data;
+
+    const fakeQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=ORDER:${orderId}|AMOUNT:${amount}RSD|IPS-TEST`;
+    return { qrCodeURL: fakeQrUrl };
+  } catch (err) {
+    console.error('❌ Error creating payment:', err.response?.data || err.message);
+    throw err;
+  }
 };
 
-// 🔹 FAKE Check Payment Status
+// 🔹 Check Payment Status (fake dok ne aktiviramo produkciju)
 export const checkPaymentStatus = async (orderId, amount) => {
-  console.log('✅ Fake status checked for', orderId);
-  return { responseCode: '00', message: 'Plaćanje uspešno (test)', orderId, amount };
+  console.log('🔍 Checking status for', orderId, '-', amount);
+  return { responseCode: '00', message: 'Plaćanje uspešno (test mode)' };
 };
