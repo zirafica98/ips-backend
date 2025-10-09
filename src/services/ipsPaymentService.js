@@ -63,11 +63,11 @@ export const createPayment = async (orderId, amount) => {
     console.log(JSON.stringify(payload, null, 2));
 
     // ❗ za sada nećemo zvati pravi servis, samo vraćamo fake QR
-    // const response = await axios.post(`${BASE_URL}/ips/v2/eCommerce`, payload, { headers });
-    // return response.data;
+    const response = await axios.post(`${BASE_URL}/ips/v2/eCommerce`, payload, { headers });
+    return response.data;
 
-    const fakeQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=ORDER:${orderId}|AMOUNT:${amount}RSD|IPS-TEST`;
-    return { qrCodeURL: fakeQrUrl };
+    // const fakeQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=ORDER:${orderId}|AMOUNT:${amount}RSD|IPS-TEST`;
+    // return { qrCodeURL: fakeQrUrl };
   } catch (err) {
     console.error('❌ Error creating payment:', err.response?.data || err.message);
     throw err;
