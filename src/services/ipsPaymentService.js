@@ -72,8 +72,18 @@ export const createPayment = async (orderId, amount) => {
     // const fakeQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=ORDER:${orderId}|AMOUNT:${amount}RSD|IPS-TEST`;
     // return { qrCodeURL: fakeQrUrl };
   } catch (err) {
-    console.error('❌ Error creating payment:', err.response?.data || err.message);
+
+    console.error('❌ Error generating token (full Axios error):');
+    console.error('Status:', err.response?.status);
+    console.error('Headers:', err.response?.headers);
+    console.error('Data:', err.response?.data);
+    console.error('Config URL:', err.config?.url);
+    console.error('Config body:', err.config?.data);
+    console.error('Message:', err.message);
     throw err;
+
+    // console.error('❌ Error creating payment:', err.response?.data || err.message);
+    // throw err;
   }
 };
 
