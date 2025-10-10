@@ -15,11 +15,14 @@ let tokenExpiry = null;
 
 // 🔹 Generate Token
 export const generateToken = async () => {
+    console.log('🔹 generateToken() called:', { USER_ID, TID, BASE_URL });
+
   try {
     const response = await axios.post(`${BASE_URL}/res/v1/generateToken`, {
       userId: USER_ID,
       tid: TID
     });
+  console.log('🔹 Payten response:', response.data);
 
     sessionToken = response.data.sessionToken;
     tokenExpiry = Date.now() + (Number(response.data.tokenExpiryTime) * 1000);
