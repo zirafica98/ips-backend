@@ -20,10 +20,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-// Globalni error handler za nepostojeće rute
-app.use((req, res) => {
-  res.status(404).json({ error: 'Ruta ne postoji', path: req.originalUrl });
-});
 
 
 app.use('/api/products', productsRouter);
@@ -31,5 +27,10 @@ app.use('/api/cart', cartRouter);
 app.use('/api/checkout', checkoutRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/orders', ordersRouter);
+
+// Globalni error handler za nepostojeće rute (mora biti poslednji)
+app.use((req, res) => {
+  res.status(404).json({ error: 'Ruta ne postoji', path: req.originalUrl });
+});
 
 export default app;
