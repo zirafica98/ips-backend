@@ -15,6 +15,16 @@ app.get('/', (req, res) => {
   res.send('✅ Backend radi');
 });
 
+// Health-check ruta
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
+// Globalni error handler za nepostojeće rute
+app.use((req, res) => {
+  res.status(404).json({ error: 'Ruta ne postoji', path: req.originalUrl });
+});
+
 
 app.use('/api/products', productsRouter);
 app.use('/api/cart', cartRouter);
