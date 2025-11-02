@@ -17,7 +17,7 @@ router.post('/create', async (req, res) => {
 });
 
 // 🔹 Generate Token (test endpoint)
-router.get('/token', async (req, res) => {
+router.post('/token', async (req, res) => {
   try {
     const token = await generateToken();
     res.json({ token });
