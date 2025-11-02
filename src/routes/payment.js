@@ -1,7 +1,5 @@
-import { generateToken } from '../services/ipsPaymentService.js';
-
 import express from 'express';
-import { createPayment, checkPaymentStatus } from '../services/ipsPaymentService.js';
+import { createPayment, checkPaymentStatus,generateToken } from '../services/ipsPaymentService.js';
 import { sendPaymentConfirmation } from '../services/mailService.js';
 
 
