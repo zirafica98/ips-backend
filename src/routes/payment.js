@@ -1,3 +1,5 @@
+import { generateToken } from '../services/ipsPaymentService.js';
+
 import express from 'express';
 import { createPayment, checkPaymentStatus } from '../services/ipsPaymentService.js';
 import { sendPaymentConfirmation } from '../services/mailService.js';
@@ -9,6 +11,16 @@ router.post('/create', async (req, res) => {
     const { orderId, amount } = req.body;
     const data = await createPayment(orderId, parseFloat(amount));
     res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 🔹 Generate Token (test endpoint)
+router.get('/token', async (req, res) => {
+  try {
+    const token = await generateToken();
+    res.json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
