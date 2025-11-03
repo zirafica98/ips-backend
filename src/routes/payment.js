@@ -1,6 +1,6 @@
 import express from 'express';
 import { createPayment, checkPaymentStatus,generateToken } from '../services/ipsPaymentService.js';
-import { sendPaymentConfirmation } from '../services/mailService.js';
+import { sendPaymentConfirmation, sendPaymentFailure } from '../services/mailService.js';
 
 
 const router = express.Router();
@@ -56,12 +56,56 @@ router.post('/confirm', async (req, res) => {
     if (!orderId || !email) {
       return res.status(400).send('Nedostaju podaci (orderId ili email)');
     }
-    await sendPaymentConfirmation(email, orderId, amount);
+    const details = {
+      orderId,
+      amount,
+      paidAt: req.body.paidAt || new Date().toISOString(),
+      payerName: req.body.payerName,
+      payerEmail: req.body.payerEmail || email,
+      reference: req.body.reference,
+      receiverName: req.body.receiverName,
+      receiverAccount: req.body.receiverAccount,
+      receiverAddress: req.body.receiverAddress,
+      method: req.body.method || 'IPS skeniraj'
+    };
+
+    await sendPaymentConfirmation(email, details);
 
     res.send({ success: true, message: 'Mail potvrde poslat korisniku.' });
   } catch (error) {
     console.error('❌ Greška u /confirm ruti:', error);
     res.status(500).send('Greška pri obradi potvrde plaćanja.');
+  }
+});
+
+// ❌ email za neuspešno plaćanje
+router.post('/failure', async (req, res) => {
+  console.log('POST /api/payment/failure', req.body);
+  try {
+    const { orderId, email } = req.body;
+    if (!orderId || !email) {
+      return res.status(400).send('Nedostaju podaci (orderId ili email)');
+    }
+
+    const details = {
+      orderId,
+      amount: req.body.amount,
+      paidAt: req.body.paidAt || new Date().toISOString(),
+      payerName: req.body.payerName,
+      payerEmail: req.body.payerEmail || email,
+      reference: req.body.reference,
+      receiverName: req.body.receiverName,
+      receiverAccount: req.body.receiverAccount,
+      receiverAddress: req.body.receiverAddress,
+      method: req.body.method || 'IPS skeniraj'
+    };
+
+    await sendPaymentFailure(email, details);
+
+    res.send({ success: true, message: 'Mail o neuspešnom plaćanju poslat.' });
+  } catch (error) {
+    console.error('❌ Greška u /failure ruti:', error);
+    res.status(500).send('Greška pri obradi obaveštenja o neuspešnom plaćanju.');
   }
 });
 
